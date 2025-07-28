@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import reactLogo from '@/assets/react.svg';
 import { Button } from 'antd';
+import reactLogo from '@/assets/react.svg';
 
 function App() {
   const [count, setCount] = useState(0);
@@ -15,7 +15,10 @@ function App() {
         点击我 {count}
       </Button>
 
-      <img src={reactLogo} alt="" />
+      <img
+        src={reactLogo}
+        alt=""
+      />
     </>
   );
 }

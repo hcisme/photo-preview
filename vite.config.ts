@@ -10,7 +10,14 @@ export default defineConfig({
     electron({
       main: {
         // Shortcut of `build.lib.entry`.
-        entry: 'electron/main.ts'
+        entry: 'electron/main.ts',
+        vite: {
+          resolve: {
+            alias: {
+              '@electron': path.resolve(__dirname, './electron')
+            }
+          }
+        }
       },
       preload: {
         // Shortcut of `build.rollupOptions.input`.
@@ -29,8 +36,7 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
-      '@electron': path.resolve(__dirname, './electron'),
+      '@': path.resolve(__dirname, './src')
     },
     extensions: ['.js', '.ts', '.jsx', '.tsx', '.json']
   }
