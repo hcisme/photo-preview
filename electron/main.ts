@@ -1,11 +1,12 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow } from 'electron';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import { DevToolsManager, TrayManager } from '@electron/manager';
+import { listenGetAppName, initFolderManager } from '@electron/event';
 
 const require = createRequire(import.meta.url);
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+export const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 process.env.APP_ROOT = path.join(__dirname, '..');
 
@@ -29,7 +30,8 @@ function createWindow() {
     title: app.getName(),
     icon,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.mjs')
+      preload: path.join(__dirname, 'preload.mjs'),
+      webSecurity: false
     }
   });
   win.setMenu(null);
@@ -42,8 +44,6 @@ function createWindow() {
     // win.loadFile('dist/index.html')
     win.loadFile(path.join(RENDERER_DIST, 'index.html'));
   }
-
-  ipcMain.handle('get-app-name', () => app.getName());
 
   return win;
 }
@@ -65,6 +65,10 @@ app.on('activate', () => {
 });
 
 app.whenReady().then(() => {
+  listenGetAppName();
+
   const _win = createWindow();
   trayManager = new TrayManager(_win, icon);
+
+  initFolderManager(_win);
 });

@@ -15,15 +15,31 @@ declare namespace NodeJS {
      * │
      * ```
      */
-    APP_ROOT: string
+    APP_ROOT: string;
     /** /dist/ or /public/ */
-    VITE_PUBLIC: string
+    VITE_PUBLIC: string;
   }
 }
 
 // Used in Renderer process, expose in `preload.ts`
 interface Window {
   electronAPI: {
-    getAppName: () => Promise<string>
-  }
+    getAppName: () => Promise<string>;
+    selectFolder: () => Promise<{ canceled: boolean; list: StoreSchema['folderList'] }>;
+    getFolderList: () => Promise<StoreSchema['folderList']>;
+    openInExplorer: (path: string) => Promise<void>;
+    hideFolder: (path: string) => Promise<StoreSchema['folderList']>;
+    hideImage: (folderPath: string, imageName: string) => Promise<StoreSchema['folderList']>;
+  };
+}
+
+interface StoreSchema {
+  folderList: FolderInfo[];
+}
+
+interface FolderInfo {
+  name: string;
+  path: string;
+  contents: string[];
+  excludes: string[];
 }
