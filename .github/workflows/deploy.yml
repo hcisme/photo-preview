@@ -15,6 +15,7 @@ jobs:
       - name: Debug GH_TOKEN
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
         run: |
           echo "GH_TOKEN is $GH_TOKEN"
           echo "GITHUB_TOKEN is $GITHUB_TOKEN"
