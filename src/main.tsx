@@ -2,6 +2,9 @@ import ReactDOM from 'react-dom/client';
 import { ConfigProvider, App as AntdApp } from 'antd';
 import zhCN from 'antd/locale/zh_CN';
 import App from '@/App';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
 import '@/assets/css/global.css';
 
 window.electronAPI.getAppName().then((appName) => {

@@ -16,7 +16,7 @@ import { tempImageBase64 } from '@/utils/imageTool';
 import ImageViewer, { ImageViewerRef } from './ImageViewer';
 
 interface IProps {
-  selectPath: string | null;
+  selectPath: string;
   list: StoreSchema['folderList'];
   onSelect: (path: string) => void;
   onAddFolder: () => void;
@@ -67,14 +67,10 @@ const Index: FC<IProps> = (props) => {
     }
   };
 
-  const onRightClickImage = async (key: string, imageName: string) => {
-    if (!selectPath) {
-      return;
-    }
+  const onRightClickImage = async (key: string, imageName: string, index: number) => {
     switch (key) {
       case 'open-in-explorer':
-        // window.electronAPI.openImage(selectPath, imageName);
-        imageViewerRef.current?.open(selectFolder?.contents.indexOf(imageName));
+        imageViewerRef.current?.open(index);
         break;
       case 'remove':
         // eslint-disable-next-line no-case-declarations
@@ -163,7 +159,7 @@ const Index: FC<IProps> = (props) => {
                 wrap
                 gap="4px 16px"
               >
-                {selectFolder?.contents.map((item) => {
+                {selectFolder?.contents.map((item, index) => {
                   return (
                     <Flex
                       key={item}
@@ -173,7 +169,7 @@ const Index: FC<IProps> = (props) => {
                       <Dropdown
                         menu={{
                           items: ImageMenuItems,
-                          onClick: ({ key }) => onRightClickImage(key, item)
+                          onClick: ({ key }) => onRightClickImage(key, item, index)
                         }}
                         trigger={['contextMenu']}
                       >
@@ -181,11 +177,7 @@ const Index: FC<IProps> = (props) => {
                           direction="vertical"
                           style={{ width: '100%', height: 100 }}
                           onDoubleClick={() => {
-                            if (!selectPath) {
-                              console.error(`找不到这个 (${item}) 图片的路径`);
-                              return;
-                            }
-                            window.electronAPI.openImage(selectPath, item);
+                            imageViewerRef.current?.open(index);
                           }}
                         >
                           <Image
@@ -207,8 +199,10 @@ const Index: FC<IProps> = (props) => {
       </Splitter>
 
       <ImageViewer
-        imageList={selectFolder?.contents.map((item) => `${selectPath}/${item}`) || []}
         ref={imageViewerRef}
+        selectPath={selectPath}
+        imageList={selectFolder?.contents || []}
+        onChangeFolder={onChangeFolder}
       />
     </>
   );

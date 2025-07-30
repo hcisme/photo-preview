@@ -31,8 +31,21 @@ function App() {
     }
   };
 
+  const setPath = async (path: string) => {
+    await window.electronAPI.startWatching(path);
+    setSelectPath(path);
+  };
+
+  const listenFolderChange = () => {
+    window.electronAPI.onDirectoryUpdate((list) => {
+      setFolderList(list);
+    });
+  };
+
   useEffect(() => {
     getFolderList();
+
+    listenFolderChange();
   }, []);
 
   return (
@@ -42,13 +55,14 @@ function App() {
       {folderList.length ? (
         <Preview
           list={folderList}
-          selectPath={selectPath}
-          onSelect={(path) => setSelectPath(path)}
+          selectPath={selectPath!}
+          onSelect={setPath}
           onAddFolder={() => selectFolder()}
           onChangeFolder={(list) => setFolderList(list)}
         />
       ) : (
         <SelectFolderPage
+          loading={loading}
           onSelect={() => {
             selectFolder();
           }}

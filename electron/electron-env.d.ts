@@ -30,6 +30,9 @@ interface Window {
     openInExplorer: (path: string) => Promise<void>;
     hideFolder: (path: string) => Promise<StoreSchema['folderList']>;
     hideImage: (folderPath: string, imageName: string) => Promise<StoreSchema['folderList']>;
+    startWatching: (path: string) => Promise<void>;
+    stopWatching: (path: string) => Promise<void>;
+    onDirectoryUpdate: (callback: (data: StoreSchema['folderList']) => void) => void;
   };
 }
 

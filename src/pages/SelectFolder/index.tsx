@@ -3,10 +3,11 @@ import { Button } from 'antd';
 
 interface IProps {
   onSelect?: () => void;
+  loading: boolean;
 }
 
 const Index: FC<IProps> = (props) => {
-  const { onSelect } = props;
+  const { loading, onSelect } = props;
 
   return (
     <>
@@ -19,12 +20,14 @@ const Index: FC<IProps> = (props) => {
           cursor: 'pointer'
         }}
       >
-        <Button
-          type="primary"
-          onClick={onSelect}
-        >
-          点击选择文件夹
-        </Button>
+        {!loading && (
+          <Button
+            type="primary"
+            onClick={onSelect}
+          >
+            点击选择文件夹
+          </Button>
+        )}
       </div>
     </>
   );

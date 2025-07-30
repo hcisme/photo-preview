@@ -1,5 +1,7 @@
-import { forwardRef, useState, useImperativeHandle, Ref } from 'react';
-import { Drawer, Image } from 'antd';
+import { forwardRef, useState, useImperativeHandle, Ref, useRef } from 'react';
+import { Drawer, Dropdown, MenuProps } from 'antd';
+import { Swiper, SwiperRef, SwiperSlide } from 'swiper/react';
+import { Navigation, Pagination, Autoplay } from 'swiper/modules';
 
 export interface ImageViewerRef {
   open: (startIndex?: number) => void;
@@ -8,46 +10,104 @@ export interface ImageViewerRef {
 
 interface IProps {
   imageList: string[];
+  selectPath: string;
+  onChangeFolder: (list: StoreSchema['folderList']) => void;
 }
 
+const ImageMenuItems: MenuProps['items'] = [
+  {
+    label: '删除',
+    key: 'remove'
+  }
+];
+
 const Index = (props: IProps, ref: Ref<ImageViewerRef>) => {
-  const { imageList } = props;
+  const { selectPath, imageList, onChangeFolder } = props;
   const [open, setOpen] = useState(false);
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const swiperRef = useRef<SwiperRef | null>(null);
 
   useImperativeHandle(ref, () => ({
     open: (startIndex = 0) => {
-      setCurrentIndex(startIndex);
+      swiperRef.current?.swiper.slideTo(startIndex, 0);
       setOpen(true);
     },
     close: () => setOpen(false)
   }));
 
+  const onRightClickImage = async (key: string, imageName: string) => {
+    switch (key) {
+      case 'remove':
+        // eslint-disable-next-line no-case-declarations
+        const filteredList = await window.electronAPI.hideImage(selectPath, imageName);
+        onChangeFolder(filteredList);
+        break;
+      default:
+        break;
+    }
+  };
+
   return (
     <Drawer
       title="图片预览"
-      height="90%"
+      height="96%"
       placement="bottom"
       closable
       onClose={() => setOpen(false)}
       open={open}
+      forceRender
     >
       <div style={{ height: '100%' }}>
-        <Image.PreviewGroup
-          items={imageList}
-          preview={{
-            current: currentIndex,
-            onChange: (current) => {
-              setCurrentIndex(current);
-            }
+        <Swiper
+          ref={swiperRef}
+          modules={[Navigation, Pagination, Autoplay]}
+          autoplay={false}
+          navigation
+          pagination={{ clickable: true }}
+          spaceBetween={50}
+          style={{
+            width: '100%',
+            height: '100%'
           }}
         >
-          <Image
-            preview={false}
-            src={imageList[currentIndex]}
-            style={{ height: '100%' }}
-          />
-        </Image.PreviewGroup>
+          {imageList.map((image) => {
+            return (
+              <SwiperSlide
+                key={image}
+                style={{ width: '100%', height: '100%' }}
+              >
+                <Dropdown
+                  key={image}
+                  menu={{
+                    items: ImageMenuItems,
+                    onClick: ({ key }) => onRightClickImage(key, image)
+                  }}
+                  trigger={['contextMenu']}
+                >
+                  <div
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center'
+                    }}
+                  >
+                    <img
+                      src={`${selectPath}/${image}`}
+                      alt={image}
+                      loading="lazy"
+                      style={{
+                        maxWidth: '100%',
+                        maxHeight: '100%',
+                        objectFit: 'contain'
+                      }}
+                    />
+                  </div>
+                </Dropdown>
+              </SwiperSlide>
+            );
+          })}
+        </Swiper>
       </div>
     </Drawer>
   );
