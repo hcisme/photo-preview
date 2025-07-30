@@ -12,6 +12,13 @@ jobs:
       contents: write
 
     steps:
+      - name: Debug GH_TOKEN
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "GH_TOKEN is $GH_TOKEN"
+          echo "GITHUB_TOKEN is $GITHUB_TOKEN"
+
       - name: Checkout code
         uses: actions/checkout@v3
         with:
