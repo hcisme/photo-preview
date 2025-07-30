@@ -27,6 +27,9 @@ jobs:
           npm install
           npm ci
 
+      - name: Ensure app-builder is executable
+        run: chmod +x node_modules/app-builder-bin/linux/x64/app-builder
+
       - name: Build project
         run: npm run build:prod
 

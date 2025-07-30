@@ -46,6 +46,7 @@
   },
   "build": {
     "appId": "com.hcc.photo-preview",
+    "asar": true,
     "icon": "public/icon",
     "productName": "photo-preview",
     "publish": {
@@ -78,6 +79,7 @@
       "dist",
       "dist-electron"
     ],
-    "asar": false
+    "linux": null,
+    "mac": null
   }
 }
