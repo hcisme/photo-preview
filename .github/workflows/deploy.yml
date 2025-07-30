@@ -28,7 +28,7 @@ jobs:
           npm ci
 
       - name: Build project
-        run: npm run build
+        run: npm run build:prod
 
       - name: Publish with electron-builder
         env:
