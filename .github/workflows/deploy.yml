@@ -31,7 +31,7 @@ jobs:
         run: chmod +x node_modules/app-builder-bin/linux/x64/app-builder
 
       - name: Build project
-        run: npm run build:prod
+        run: npm run build
 
       - name: Publish with electron-builder
         env:
