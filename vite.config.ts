@@ -5,8 +5,9 @@ import electron from 'vite-plugin-electron/simple';
 
 // https://cn.vite.dev/config/
 export default defineConfig({
+  base: './',
   plugins: [
-    react(),
+    react({ jsxRuntime: 'automatic' }),
     electron({
       main: {
         // Shortcut of `build.lib.entry`.

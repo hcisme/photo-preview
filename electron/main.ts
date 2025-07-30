@@ -1,11 +1,10 @@
 import { app, BrowserWindow } from 'electron';
-import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
-import { DevToolsManager, TrayManager } from '@electron/manager';
+import { DevToolsManager, setupAutoUpdater, TrayManager } from '@electron/manager';
 import { listenGetAppName, initFolderManager } from '@electron/event';
 
-const require = createRequire(import.meta.url);
+// const require = createRequire(import.meta.url);
 export const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 process.env.APP_ROOT = path.join(__dirname, '..');
@@ -20,7 +19,6 @@ process.env.VITE_PUBLIC = VITE_DEV_SERVER_URL
 
 const icon = path.join(process.env.VITE_PUBLIC, 'favicon.png');
 let win: BrowserWindow | null = null;
-let trayManager: TrayManager | null = null;
 let devToolsManager: DevToolsManager | null = null;
 
 function createWindow() {
@@ -68,7 +66,8 @@ app.whenReady().then(() => {
   listenGetAppName();
 
   const _win = createWindow();
-  trayManager = new TrayManager(_win, icon);
+  new TrayManager(_win, icon);
 
   initFolderManager(_win);
+  setupAutoUpdater();
 });

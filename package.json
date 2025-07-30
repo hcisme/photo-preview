@@ -3,9 +3,14 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "main": "dist-electron/main.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hcisme/photo-preview.git"
+  },
   "scripts": {
     "dev": "chcp 65001 && vite",
-    "build": "tsc && vite build && electron-builder",
+    "build": "chcp 65001 && tsc && vite build && electron-builder",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
@@ -17,7 +22,8 @@
     "lodash": "^4.17.21",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "swiper": "^11.2.10"
+    "swiper": "^11.2.10",
+    "update-electron-app": "^3.1.1"
   },
   "devDependencies": {
     "@types/lodash": "^4.17.20",
@@ -37,5 +43,40 @@
     "vite-plugin-electron": "^0.28.6",
     "vite-plugin-electron-renderer": "^0.14.5"
   },
-  "main": "dist-electron/main.js"
+  "build": {
+    "appId": "com.hcc.photo-preview",
+    "icon": "public/icon",
+    "productName": "photo-preview",
+    "publish": {
+      "provider": "github",
+      "owner": "hcisme",
+      "repo": "photo-preview"
+    },
+    "win": {
+      "icon": "public/icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        "zip"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": true,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": "always"
+    },
+    "directories": {
+      "output": "dist-release"
+    },
+    "files": [
+      "dist",
+      "dist-electron"
+    ],
+    "asar": false
+  }
 }
