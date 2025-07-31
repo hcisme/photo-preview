@@ -36,6 +36,7 @@ jobs:
       - name: Publish with electron-builder
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        shell: bash
         run: |
           echo "GH_TOKEN is $GH_TOKEN"
           echo "GITHUB_TOKEN is $GITHUB_TOKEN"
