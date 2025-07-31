@@ -4,6 +4,8 @@
   "version": "1.0.23",
   "type": "module",
   "main": "dist-electron/main.js",
+  "author": "chihaicheng <chc2075983104@163.com>",
+  "description": "图片预览",
   "repository": {
     "type": "git",
     "url": "https://github.com/hcisme/photo-preview.git"
@@ -12,7 +14,8 @@
     "dev": "chcp 65001 && vite",
     "build": "chcp 65001 && tsc && vite build && electron-builder",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "relaese": "chcp 65001 && tsc && vite build && electron-builder --publish always"
   },
   "dependencies": {
     "@ant-design/icons": "^5.6.1",
