@@ -11,7 +11,7 @@ export interface ImageViewerRef {
 interface IProps {
   imageList: string[];
   selectPath: string;
-  onChangeFolder: () => void;
+  onDeleteImage: (imageName: string) => void;
 }
 
 const ImageMenuItems: MenuProps['items'] = [
@@ -22,7 +22,7 @@ const ImageMenuItems: MenuProps['items'] = [
 ];
 
 const Index = (props: IProps, ref: Ref<ImageViewerRef>) => {
-  const { selectPath, imageList, onChangeFolder } = props;
+  const { selectPath, imageList, onDeleteImage } = props;
   const [open, setOpen] = useState(false);
   const swiperRef = useRef<SwiperRef | null>(null);
 
@@ -39,7 +39,7 @@ const Index = (props: IProps, ref: Ref<ImageViewerRef>) => {
       case 'remove':
         // eslint-disable-next-line no-case-declarations
         window.electronAPI.hideImage(selectPath, [imageName]).then(() => {
-          onChangeFolder();
+          onDeleteImage(imageName);
         });
         break;
       default:

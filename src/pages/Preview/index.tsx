@@ -82,6 +82,7 @@ const Index: FC<IProps> = (props) => {
       case 'remove':
         // eslint-disable-next-line no-case-declarations
         window.electronAPI.hideImage(selectPath, [imageName]).then(() => {
+          setCheckedList((prevList) => prevList.filter((item) => item !== imageName));
           onChangeFolder();
         });
         break;
@@ -225,7 +226,7 @@ const Index: FC<IProps> = (props) => {
                   wrap
                   gap="4px 16px"
                 >
-                  {selectFolder?.contents.map((item, index) => {
+                  {contents.map((item, index) => {
                     return (
                       <Checkbox
                         key={item}
@@ -273,8 +274,11 @@ const Index: FC<IProps> = (props) => {
       <ImageViewer
         ref={imageViewerRef}
         selectPath={selectPath}
-        imageList={selectFolder?.contents || []}
-        onChangeFolder={onChangeFolder}
+        imageList={contents}
+        onDeleteImage={(name) => {
+          setCheckedList((prevList) => prevList.filter((item) => item !== name));
+          onChangeFolder();
+        }}
       />
     </>
   );
