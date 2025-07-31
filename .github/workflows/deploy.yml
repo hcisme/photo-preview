@@ -36,16 +36,8 @@ jobs:
           script: |
             core.exportVariable('GH_TOKEN', '${{ secrets.ACCESS_TOKEN }}')
 
-      - name: Extract version from tag
-        id: extract_version
-        shell: pwsh
-        run: |
-          $tag = "${{ github.ref }}"
-          $version = $tag -replace 'refs/tags/v', ''
-          echo "version=$version" >> $env:GITHUB_OUTPUT
-
       - name: Build project
         run: npm run build
 
       - name: Publish with electron-builder
-        run: npx electron-builder --publish always --config.version=${{ steps.extract_version.outputs.version }}
+        run: npx electron-builder --publish always
