@@ -27,12 +27,26 @@ jobs:
         run: |
           VERSION=${GITHUB_REF#refs/tags/v}
 
-          npm install -g jq
-          jq --arg ver "$VERSION" '.version = $ver' package.json > temp.json
-          mv temp.json package.json
+          node <<EOF
+          const fs = require('fs');
+          const pkgPath = 'package.json';
 
-          echo "Updated version to: $VERSION"
-          cat package.json | grep version
+          try {
+            const pkg = JSON.parse(fs.readFileSync(pkgPath));
+            console.log('Current version:', pkg.version);
+            
+            pkg.version = '$VERSION';
+            fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2));
+            
+            console.log('Updated version to:', '$VERSION');
+          } catch (error) {
+            console.error('Error updating package.json:', error);
+            process.exit(1);
+          }
+          EOF
+
+          echo "Updated package.json:"
+          cat package.json | grep -A 1 '"version"'
 
       - name: Install dependencies
         run: |
