@@ -34,6 +34,6 @@ jobs:
         run: npm run build
 
       - name: Publish with electron-builder
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: npx electron-builder --publish always
+        run: |
+          $env:GH_TOKEN = "${{ secrets.ACCESS_TOKEN }}"
+          npx electron-builder --publish always
