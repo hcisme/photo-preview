@@ -30,14 +30,14 @@ jobs:
       - name: Ensure app-builder is executable
         run: chmod +x node_modules/app-builder-bin/linux/x64/app-builder
 
-      - name: Build project
-        run: npm run build
-
       - name: Set GH_TOKEN
         uses: actions/github-script@v6
         with:
           script: |
             core.exportVariable('GH_TOKEN', '${{ secrets.ACCESS_TOKEN }}')
+
+      - name: Build project
+        run: npm run build
 
       - name: Publish with electron-builder
         run: npx electron-builder --publish always
