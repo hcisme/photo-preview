@@ -48,4 +48,4 @@ jobs:
         run: npm run build
 
       - name: Publish with electron-builder
-        run: npx electron-builder --publish always --config version=${{ steps.extract_version.outputs.version }}
+        run: npx electron-builder --publish always --config.version=${{ steps.extract_version.outputs.version }}

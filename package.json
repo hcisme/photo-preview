@@ -72,7 +72,7 @@
       "createDesktopShortcut": "always"
     },
     "directories": {
-      "output": "dist-release"
+      "output": "dist-release/${version}"
     },
     "files": [
       "dist",
