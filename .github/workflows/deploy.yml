@@ -22,6 +22,18 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Update version in package.json
+        shell: bash
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+
+          npm install -g jq
+          jq --arg ver "$VERSION" '.version = $ver' package.json > temp.json
+          mv temp.json package.json
+
+          echo "Updated version to: $VERSION"
+          cat package.json | grep version
+
       - name: Install dependencies
         run: |
           npm install
