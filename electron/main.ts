@@ -62,12 +62,24 @@ app.on('activate', () => {
   }
 });
 
-app.whenReady().then(() => {
-  listenGetAppName();
+if (app.requestSingleInstanceLock()) {
+  app.on('second-instance', () => {
+    if (win?.isVisible()) {
+      win.show();
+      win.focus();
+    }
+  });
 
-  const _win = createWindow();
-  new TrayManager(_win, icon);
+  // 正常的应用初始化
+  app.whenReady().then(() => {
+    listenGetAppName();
 
-  initFolderManager(_win);
-  setupAutoUpdater();
-});
+    const _win = createWindow();
+    new TrayManager(_win, icon);
+
+    initFolderManager(_win);
+    setupAutoUpdater();
+  });
+} else {
+  app.quit();
+}
