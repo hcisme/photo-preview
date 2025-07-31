@@ -33,7 +33,11 @@ jobs:
       - name: Build project
         run: npm run build
 
+      - name: Set GH_TOKEN
+        uses: actions/github-script@v6
+        with:
+          script: |
+            core.exportVariable('GH_TOKEN', '${{ secrets.ACCESS_TOKEN }}')
+
       - name: Publish with electron-builder
-        run: |
-          $env:GH_TOKEN = "${{ secrets.ACCESS_TOKEN }}"
-          npx electron-builder --publish always
+        run: npx electron-builder --publish always
