@@ -15,7 +15,7 @@
     "build": "chcp 65001 && tsc && vite build && electron-builder",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "relaese": "chcp 65001 && tsc && vite build && electron-builder --publish always"
+    "release": "chcp 65001 && tsc && vite build && electron-builder --publish always"
   },
   "dependencies": {
     "@ant-design/icons": "^5.6.1",
