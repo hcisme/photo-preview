@@ -29,10 +29,11 @@ interface Window {
     getFolderList: () => Promise<StoreSchema['folderList']>;
     openInExplorer: (path: string) => Promise<void>;
     hideFolder: (path: string) => Promise<StoreSchema['folderList']>;
-    hideImage: (folderPath: string, imageName: string) => Promise<StoreSchema['folderList']>;
+    hideImage: (folderPath: string, imageNameList: string[]) => Promise<void>;
     startWatching: (path: string) => Promise<void>;
     stopWatching: (path: string) => Promise<void>;
-    onDirectoryUpdate: (callback: (data: StoreSchema['folderList']) => void) => void;
+    onDirectoryUpdate: (callback: (data: StoreSchema['folderList']) => void) => Promise<void>;
+    SaveAsFolder: (folderPath: string, imageNameList: string[]) => Promise<SaveAsFolder>;
   };
 }
 
@@ -44,5 +45,9 @@ interface FolderInfo {
   name: string;
   path: string;
   contents: string[];
-  excludes: string[];
+}
+
+interface SaveAsFolder {
+  canceled: boolean;
+  savePath: string | null;
 }

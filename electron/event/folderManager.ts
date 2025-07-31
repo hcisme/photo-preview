@@ -1,14 +1,18 @@
 import { BrowserWindow, dialog, ipcMain, shell } from 'electron';
-import { basename } from 'node:path';
+import path, { basename } from 'node:path';
+import fs from 'node:fs/promises';
+import { exec } from 'node:child_process';
 import { uniqBy } from 'lodash';
 import chokidar, { FSWatcher } from 'chokidar';
 import { store } from '@electron/store';
 import {
+  EXCLUDES_FOLDER_NAME,
   GET_FOLDER_LIST,
   HIDE_FOLDER,
   HIDE_IMAGE,
   OPEN_DIRECTORY_DIALOG,
   OPEN_IN_EXPLORER,
+  SAVE_AS_FOLDER,
   START_WATCHING,
   STOP_WATCHING,
   WATCHING_DIRECTORY
@@ -23,11 +27,7 @@ let lastChangeTime = 0;
 const getFolderList = async () => {
   const folderList = store.get('folderList', []);
   const newFolderList = await Promise.all<FolderInfo>(
-    folderList.map(async (item) => {
-      const contents = await scanFolderForImages(item.path);
-      const filterContents = contents.filter((imageName) => !item.excludes.includes(imageName));
-      return { ...item, contents: filterContents };
-    })
+    folderList.map(async (item) => ({ ...item, contents: await scanFolderForImages(item.path) }))
   );
   updateFolderList(newFolderList);
   return newFolderList;
@@ -44,7 +44,7 @@ const handleDirectorySelection = async (
     properties: ['multiSelections', 'openDirectory']
   });
 
-  if (canceled || filePaths.length === 0) {
+  if (canceled || !filePaths.length) {
     return { canceled, list: [] };
   }
 
@@ -54,8 +54,7 @@ const handleDirectorySelection = async (
       return {
         path,
         name: basename(path),
-        contents,
-        excludes: []
+        contents
       };
     })
   );
@@ -88,22 +87,27 @@ const hideFolder = async (targetPath: string) => {
 /**
  * 隐藏单张图片
  */
-const hideImage = async (folderPath: string, imageName: string) => {
-  const folderList = await getFolderList();
-  const updatedList = folderList.map((folder) => {
-    if (folder.path === folderPath) {
-      const contents = folder.contents.filter((item) => item !== imageName);
-      const excludes = folder.excludes.includes(imageName)
-        ? folder.excludes
-        : [...folder.excludes, imageName];
+const hideImage = async (folderPath: string, imageNameList: string[]) => {
+  const excludesDir = path.join(folderPath, EXCLUDES_FOLDER_NAME);
 
-      return { ...folder, contents, excludes };
+  try {
+    await fs.access(excludesDir);
+  } catch {
+    await fs.mkdir(excludesDir);
+    exec(`attrib +H "${excludesDir}"`);
+  }
+
+  for (const imageName of imageNameList) {
+    const src = path.join(folderPath, imageName);
+    const dest = path.join(excludesDir, imageName);
+
+    try {
+      await fs.access(src);
+      await fs.rename(src, dest);
+    } catch (err) {
+      console.warn(`Hide Image Error: ${src} TO ${dest}`, err);
     }
-    return folder;
-  });
-  updateFolderList(updatedList);
-
-  return updatedList;
+  }
 };
 
 /**
@@ -152,6 +156,41 @@ const handleFileEvent = async (win: BrowserWindow) => {
 };
 
 /**
+ * 将图片另存为文件夹
+ */
+const SaveAsFolder: (
+  win: BrowserWindow,
+  folderPath: string,
+  imageNameList: string[]
+) => Promise<SaveAsFolder> = async (win, folderPath, imageNameList) => {
+  const { canceled, filePaths } = await dialog.showOpenDialog(win, {
+    title: '选择保存图片的文件夹',
+    buttonLabel: '保存到此处',
+    properties: ['openDirectory', 'createDirectory']
+  });
+
+  if (canceled || !filePaths.length) {
+    return { canceled, savePath: null };
+  }
+
+  const targetDir = filePaths[0];
+
+  for (const imageName of imageNameList) {
+    const src = path.join(folderPath, imageName);
+    const dest = path.join(targetDir, imageName);
+
+    try {
+      // 如果目标同名文件已存在，可选择覆盖或跳过
+      await fs.copyFile(src, dest);
+    } catch (err) {
+      console.warn(`[SaveAsFolder] 复制失败: ${imageName}`, err);
+    }
+  }
+
+  return { canceled, savePath: targetDir };
+};
+
+/**
  * 初始化文件夹相关的IPC监听
  */
 export const initFolderManager = (win: BrowserWindow) => {
@@ -159,14 +198,14 @@ export const initFolderManager = (win: BrowserWindow) => {
   ipcMain.handle(GET_FOLDER_LIST, () => getFolderList());
   ipcMain.handle(OPEN_IN_EXPLORER, (_, path: string) => openInSystemExplorer(path));
   ipcMain.handle(HIDE_FOLDER, (_, path: string) => hideFolder(path));
-  ipcMain.handle(HIDE_IMAGE, (_, folderPath: string, imageName: string) => {
-    return hideImage(folderPath, imageName);
+  ipcMain.handle(HIDE_IMAGE, (_, folderPath: string, imageNameList: string[]) => {
+    return hideImage(folderPath, imageNameList);
   });
 
-  ipcMain.handle(START_WATCHING, (_, path: string) => {
-    return startWatchingFolder(win, path);
-  });
-  ipcMain.handle(STOP_WATCHING, (_, path: string) => {
-    return stopWatchingFolder(path);
-  });
+  ipcMain.handle(START_WATCHING, (_, path: string) => startWatchingFolder(win, path));
+  ipcMain.handle(STOP_WATCHING, (_, path: string) => stopWatchingFolder(path));
+
+  ipcMain.handle(SAVE_AS_FOLDER, (_, folderPath: string, imageNameList: string[]) =>
+    SaveAsFolder(win, folderPath, imageNameList)
+  );
 };

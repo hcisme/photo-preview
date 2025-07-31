@@ -11,7 +11,7 @@ export interface ImageViewerRef {
 interface IProps {
   imageList: string[];
   selectPath: string;
-  onChangeFolder: (list: StoreSchema['folderList']) => void;
+  onChangeFolder: () => void;
 }
 
 const ImageMenuItems: MenuProps['items'] = [
@@ -38,8 +38,9 @@ const Index = (props: IProps, ref: Ref<ImageViewerRef>) => {
     switch (key) {
       case 'remove':
         // eslint-disable-next-line no-case-declarations
-        const filteredList = await window.electronAPI.hideImage(selectPath, imageName);
-        onChangeFolder(filteredList);
+        window.electronAPI.hideImage(selectPath, [imageName]).then(() => {
+          onChangeFolder();
+        });
         break;
       default:
         break;

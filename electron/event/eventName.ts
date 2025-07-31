@@ -7,3 +7,5 @@ export const HIDE_IMAGE = 'hide-image';
 export const START_WATCHING = 'start-watching';
 export const STOP_WATCHING = 'stop-watching';
 export const WATCHING_DIRECTORY = 'watching-directory';
+export const EXCLUDES_FOLDER_NAME = '.excludes';
+export const SAVE_AS_FOLDER = 'save-as-folder';

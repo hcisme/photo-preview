@@ -1,0 +1,10 @@
+.checkbox-relative {
+  position: relative;
+}
+
+.checkbox-relative>.ant-checkbox {
+  position: absolute;
+  top: -6px;
+  right: 0;
+  z-index: 1;
+}

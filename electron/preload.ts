@@ -6,6 +6,7 @@ import {
   HIDE_IMAGE,
   OPEN_DIRECTORY_DIALOG,
   OPEN_IN_EXPLORER,
+  SAVE_AS_FOLDER,
   START_WATCHING,
   STOP_WATCHING,
   WATCHING_DIRECTORY
@@ -18,10 +19,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
   selectFolder: () => ipcRenderer.invoke(OPEN_DIRECTORY_DIALOG),
   openInExplorer: (path: string) => ipcRenderer.invoke(OPEN_IN_EXPLORER, path),
   hideFolder: (path: string) => ipcRenderer.invoke(HIDE_FOLDER, path),
-  hideImage: (folderPath: string, imageName: string) =>
-    ipcRenderer.invoke(HIDE_IMAGE, folderPath, imageName),
+  hideImage: (folderPath: string, imageNameList: string[]) =>
+    ipcRenderer.invoke(HIDE_IMAGE, folderPath, imageNameList),
   startWatching: (path: string) => ipcRenderer.invoke(START_WATCHING, path),
   stopWatching: (path: string) => ipcRenderer.invoke(STOP_WATCHING, path),
   onDirectoryUpdate: (callback: (data: StoreSchema['folderList']) => void) =>
-    ipcRenderer.on(WATCHING_DIRECTORY, (_, data) => callback(data))
+    ipcRenderer.on(WATCHING_DIRECTORY, (_, data) => callback(data)),
+  SaveAsFolder: (folderPath: string, imageNameList: string[]) =>
+    ipcRenderer.invoke(SAVE_AS_FOLDER, folderPath, imageNameList)
 });

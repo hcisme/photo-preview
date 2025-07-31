@@ -1,11 +1,13 @@
-import { FC, useRef } from 'react';
+import { FC, useRef, useState } from 'react';
 import {
   Button,
+  Checkbox,
   Col,
   Dropdown,
   Flex,
   Image,
   MenuProps,
+  message,
   Row,
   Space,
   Splitter,
@@ -14,13 +16,14 @@ import {
 import { PlusOutlined } from '@ant-design/icons';
 import { tempImageBase64 } from '@/utils/imageTool';
 import ImageViewer, { ImageViewerRef } from './ImageViewer';
+import './index.css';
 
 interface IProps {
   selectPath: string;
   list: StoreSchema['folderList'];
   onSelect: (path: string) => void;
   onAddFolder: () => void;
-  onChangeFolder: (list: StoreSchema['folderList']) => void;
+  onChangeFolder: () => void;
 }
 
 const { Text, Paragraph } = Typography;
@@ -49,8 +52,11 @@ const ImageMenuItems: MenuProps['items'] = [
 
 const Index: FC<IProps> = (props) => {
   const { selectPath, list, onAddFolder, onSelect, onChangeFolder } = props;
+  const [messageApi, contextHolder] = message.useMessage();
   const imageViewerRef = useRef<ImageViewerRef>(null);
+  const [checkedList, setCheckedList] = useState<string[]>([]);
   const selectFolder = list.find((item) => item.path === selectPath);
+  const contents = selectFolder?.contents || [];
 
   const onMenuClick = async (key: string, path: string) => {
     switch (key) {
@@ -59,8 +65,9 @@ const Index: FC<IProps> = (props) => {
         break;
       case 'remove':
         // eslint-disable-next-line no-case-declarations
-        const filteredList = await window.electronAPI.hideFolder(path);
-        onChangeFolder(filteredList);
+        window.electronAPI.hideFolder(path).then(() => {
+          onChangeFolder();
+        });
         break;
       default:
         break;
@@ -74,16 +81,30 @@ const Index: FC<IProps> = (props) => {
         break;
       case 'remove':
         // eslint-disable-next-line no-case-declarations
-        const filteredList = await window.electronAPI.hideImage(selectPath, imageName);
-        onChangeFolder(filteredList);
+        window.electronAPI.hideImage(selectPath, [imageName]).then(() => {
+          onChangeFolder();
+        });
         break;
       default:
         break;
     }
   };
 
+  const saveAsFolder = () => {
+    window.electronAPI.SaveAsFolder(selectPath, checkedList).then(({ canceled, savePath }) => {
+      if (canceled) {
+        messageApi.info('已取消保存');
+      } else {
+        onChangeFolder();
+        setCheckedList([]);
+        messageApi.success(`保存成功 路径为 ${savePath}`);
+      }
+    });
+  };
+
   return (
     <>
+      {contextHolder}
       <Splitter style={{ height: '100vh' }}>
         <Splitter.Panel
           defaultSize="15%"
@@ -156,43 +177,94 @@ const Index: FC<IProps> = (props) => {
 
             <Col span={24}>
               <Flex
-                wrap
-                gap="4px 16px"
+                justify="flex-end"
+                align="center"
               >
-                {selectFolder?.contents.map((item, index) => {
-                  return (
-                    <Flex
-                      key={item}
-                      vertical
-                      style={{ width: 100, height: 156, cursor: 'pointer' }}
-                    >
-                      <Dropdown
-                        menu={{
-                          items: ImageMenuItems,
-                          onClick: ({ key }) => onRightClickImage(key, item, index)
-                        }}
-                        trigger={['contextMenu']}
-                      >
-                        <Space
-                          direction="vertical"
-                          style={{ width: '100%', height: 100 }}
-                          onDoubleClick={() => {
-                            imageViewerRef.current?.open(index);
-                          }}
-                        >
-                          <Image
-                            width="100%"
-                            height="100%"
-                            preview={false}
-                            src={tempImageBase64}
-                          />
-                          <Paragraph ellipsis={{ rows: 2 }}>{item}</Paragraph>
-                        </Space>
-                      </Dropdown>
-                    </Flex>
-                  );
-                })}
+                <Space>
+                  <Button
+                    type="dashed"
+                    disabled={!checkedList.length}
+                    onClick={saveAsFolder}
+                  >
+                    选中另存为
+                  </Button>
+
+                  <Button
+                    type="dashed"
+                    disabled={!checkedList.length}
+                    onClick={async () => {
+                      window.electronAPI.hideImage(selectPath, checkedList).then(() => {
+                        onChangeFolder();
+                        setCheckedList([]);
+                      });
+                    }}
+                  >
+                    删除选中
+                  </Button>
+
+                  <Checkbox
+                    indeterminate={checkedList.length > 0 && checkedList.length < contents.length}
+                    checked={checkedList.length === contents.length}
+                    onChange={(e) => {
+                      setCheckedList(e.target.checked ? contents : []);
+                    }}
+                  >
+                    全选
+                  </Checkbox>
+                </Space>
               </Flex>
+            </Col>
+
+            <Col span={24}>
+              <Checkbox.Group
+                value={checkedList}
+                onChange={setCheckedList}
+                style={{ width: '100%' }}
+              >
+                <Flex
+                  wrap
+                  gap="4px 16px"
+                >
+                  {selectFolder?.contents.map((item, index) => {
+                    return (
+                      <Checkbox
+                        key={item}
+                        value={item}
+                        className="checkbox-relative"
+                      >
+                        <Flex
+                          vertical
+                          style={{ width: 100, height: 156, cursor: 'pointer' }}
+                        >
+                          <Dropdown
+                            menu={{
+                              items: ImageMenuItems,
+                              onClick: ({ key }) => onRightClickImage(key, item, index)
+                            }}
+                            trigger={['contextMenu']}
+                          >
+                            <Space
+                              direction="vertical"
+                              style={{ width: '100%', height: 100 }}
+                              onDoubleClick={() => {
+                                imageViewerRef.current?.open(index);
+                              }}
+                            >
+                              <Image
+                                width="100%"
+                                height="100%"
+                                preview={false}
+                                src={tempImageBase64}
+                              />
+                              <Paragraph ellipsis={{ rows: 2 }}>{item}</Paragraph>
+                            </Space>
+                          </Dropdown>
+                        </Flex>
+                      </Checkbox>
+                    );
+                  })}
+                </Flex>
+              </Checkbox.Group>
             </Col>
           </Row>
         </Splitter.Panel>

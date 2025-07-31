@@ -32,8 +32,9 @@ function App() {
   };
 
   const setPath = async (path: string) => {
-    await window.electronAPI.startWatching(path);
     setSelectPath(path);
+    await getFolderList();
+    await window.electronAPI.startWatching(path);
   };
 
   const listenFolderChange = () => {
@@ -58,7 +59,7 @@ function App() {
           selectPath={selectPath!}
           onSelect={setPath}
           onAddFolder={() => selectFolder()}
-          onChangeFolder={(list) => setFolderList(list)}
+          onChangeFolder={() => getFolderList()}
         />
       ) : (
         <SelectFolderPage
