@@ -1,13 +1,9 @@
 import { FC } from 'react';
 import { Button } from 'antd';
+import { useAppContext } from '@/store/app';
 
-interface IProps {
-  onSelect?: () => void;
-  loading: boolean;
-}
-
-const Index: FC<IProps> = (props) => {
-  const { loading, onSelect } = props;
+const Index: FC = () => {
+  const { loading, addFolder } = useAppContext();
 
   return (
     <>
@@ -23,7 +19,7 @@ const Index: FC<IProps> = (props) => {
         {!loading && (
           <Button
             type="primary"
-            onClick={onSelect}
+            onClick={addFolder}
           >
             点击选择文件夹
           </Button>

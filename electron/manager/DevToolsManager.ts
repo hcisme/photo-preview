@@ -1,5 +1,4 @@
-import { BrowserWindow, globalShortcut } from 'electron';
-import isDev from 'electron-is-dev';
+import { BrowserWindow, globalShortcut, app } from 'electron';
 
 export default class DevToolsManager {
   private static KEY = 'F10';
@@ -9,7 +8,7 @@ export default class DevToolsManager {
   constructor(win: BrowserWindow) {
     this.win = win;
 
-    if (isDev) {
+    if (!app.isPackaged) {
       this.registerShortcut();
     }
   }
