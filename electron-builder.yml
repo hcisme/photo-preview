@@ -1,5 +1,5 @@
 appId: com.hcc.photo-preview
-asar: false
+asar: true
 icon: public/icon
 productName: photo-preview
 

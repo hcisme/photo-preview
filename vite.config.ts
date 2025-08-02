@@ -9,6 +9,11 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
+        manualChunks: {
+          'react-core': ['react', 'react-dom'],
+          'antd': ['antd'],
+          'antd-icons': ['@ant-design/icons']
+        },
         chunkFileNames: 'js/[name]-[hash].js',
         entryFileNames: 'js/[name]-[hash].js',
         assetFileNames: (assetInfo) => {

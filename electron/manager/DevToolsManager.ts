@@ -8,7 +8,7 @@ export default class DevToolsManager {
   constructor(win: BrowserWindow) {
     this.win = win;
 
-    if (app.isPackaged) {
+    if (!app.isPackaged) {
       this.registerShortcut();
     }
   }
