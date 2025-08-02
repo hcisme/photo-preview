@@ -1,0 +1,39 @@
+appId: com.hcc.photo-preview
+asar: false
+icon: public/icon
+productName: photo-preview
+
+publish:
+  provider: github
+  owner: hcisme
+  repo: photo-preview
+
+win:
+  icon: public/icon.ico
+  target:
+    - target: nsis
+      arch:
+        - x64
+    - zip
+
+nsis:
+  oneClick: false
+  perMachine: true
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: always
+
+directories:
+  output: dist-release/${version}
+
+files:
+  - "!**"
+  - "dist/**/*"
+  - "dist-electron/**/*"
+  - "!**/*.map"
+  - "!**/node_modules/**"
+
+linux: null
+mac: null
+
+electronDownload:
+  mirror: https://npmmirror.com/mirrors/electron/

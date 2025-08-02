@@ -6,6 +6,21 @@ import electron from 'vite-plugin-electron/simple';
 // https://cn.vite.dev/config/
 export default defineConfig({
   base: './',
+  build: {
+    rollupOptions: {
+      output: {
+        chunkFileNames: 'js/[name]-[hash].js',
+        entryFileNames: 'js/[name]-[hash].js',
+        assetFileNames: (assetInfo) => {
+          const extType = assetInfo.names?.[0]?.split('.').pop() || '';
+          if (extType === 'css') {
+            return 'css/[name]-[hash][extname]';
+          }
+          return 'assets/[name]-[hash][extname]';
+        }
+      }
+    }
+  },
   plugins: [
     react({ jsxRuntime: 'automatic' }),
     electron({
